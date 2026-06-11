@@ -2,210 +2,333 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StockScan Atelier</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CombiCUT Workshop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@600;800&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
-        .ios-btn { transition: all 0.1s ease; }
-        .ios-btn:active { transform: scale(0.96); opacity: 0.85; }
+        /* STYLE GLOBAL INDUSTRIAL */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #020617; /* Fond ultra sombre */
+            color: #f1f5f9;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* IMAGE DE FOND ATELIER AVEC OPACITÉ CONTROLLÉE */
+        .bg-workshop {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.95)), 
+                              url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=600');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+
+        /* ENTÊTE / LOGO COMBICUT */
+        header {
+            padding: 25px 20px 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .logo {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #ffffff;
+        }
+        .logo span { color: #0ea5e9; }
+        .subtitle {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* CONTENEUR PRINCIPAL DES MENUS */
+        .container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* LES PAGES (Toutes cachées par défaut sauf l'accueil) */
+        .page {
+            display: none;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .page.active { display: flex; flex-direction: column; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* BOUTONS ACCUEIL (MENU PRINCIPAL) */
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .btn-menu {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 22px 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: left;
+        }
+        .btn-menu:active {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: #0ea5e9;
+            transform: scale(0.98);
+        }
+        .btn-menu i {
+            font-size: 26px;
+            color: #0ea5e9;
+            background: rgba(14, 165, 233, 0.1);
+            width: 55px; height: 55px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px;
+        }
+        .btn-menu-text h3 {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 20px;
+            color: #ffffff;
+        }
+        .btn-menu-text p {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        /* DESIGN DES TITRES DE PAGES */
+        .page-title {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-title i { color: #0ea5e9; }
+
+        /* BOUTON RETOUR UNIVERSEL */
+        .btn-back {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f1f5f9;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: auto;
+            cursor: pointer;
+        }
+
+        /* FORMULAIRES DE TEST (FAUX FONCTIONNEMENT) */
+        .select-operator {
+            width: 100%;
+            padding: 16px;
+            background: #0f172a;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        /* LES 4 TOUCHES DE POINTAGE */
+        .pointage-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .btn-p {
+            padding: 30px 15px;
+            border-radius: 16px;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: center;
+            cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            border: none;
+        }
+        .btn-p-in { background: #16a34a; color: white; }       /* Vert */
+        .btn-p-pause { background: #ea580c; color: white; }    /* Orange */
+        .btn-p-return { background: #2563eb; color: white; }   /* Bleu */
+        .btn-p-out { background: #dc2626; color: white; }      /* Rouge */
+        
+        .btn-p:active { opacity: 0.8; transform: scale(0.95); }
+        .btn-p i { font-size: 24px; }
+
+        /* ZONE SIMULATION RETOUR INFOS */
+        .mock-info-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 12px;
+            color: #94a3b8;
+            font-size: 14px;
+            text-align: center;
+        }
     </style>
 </head>
-<body class="bg-slate-50 font-sans antialiased text-slate-950 select-none">
+<body>
 
-    <div class="max-w-md mx-auto min-h-screen bg-white flex flex-col shadow-2xl relative pb-20">
-        
-        <header class="bg-slate-900 text-white px-4 pt-6 pb-4 sticky top-0 z-50 shadow-sm">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight">M - Consomables</h1>
-                    <p class="text-[11px] text-slate-400">Suivi d'Atelier en Direct</p>
+    <div class="bg-workshop"></div>
+
+    <header>
+        <div class="logo">COMBI<span>CUT</span></div>
+        <div class="subtitle">Workshop Atelier</div>
+    </header>
+
+    <div class="container">
+
+        <div class="page active" id="page-accueil">
+            <div class="menu-grid">
+                <div class="btn-menu" onclick="naviguer('page-pointage')">
+                    <i class="fa-solid fa-id-card"></i>
+                    <div class="btn-menu-text">
+                        <h3>1. Pointage</h3>
+                        <p>Badgeuse entrées, sorties et pauses</p>
+                    </div>
                 </div>
-                <div id="sync-status" class="flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-500/30 px-2.5 py-1 rounded-full text-[11px] text-emerald-400 font-medium">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    Sheets Synchro
+                <div class="btn-menu" onclick="naviguer('page-magasin')">
+                    <i class="fa-solid fa-box-open"></i>
+                    <div class="btn-menu-text">
+                        <h3>2. Magasin</h3>
+                        <p>Scan consommables et gestion de stock</p>
+                    </div>
+                </div>
+                <div class="btn-menu" onclick="naviguer('page-production')">
+                    <i class="fa-solid fa-list-check"></i>
+                    <div class="btn-menu-text">
+                        <h3>3. Production</h3>
+                        <p>Suivi et avancement du planning</p>
+                    </div>
+                </div>
+                <div class="btn-menu" onclick="naviguer('page-affutage')">
+                    <i class="fa-solid fa-gear"></i>
+                    <div class="btn-menu-text">
+                        <h3>4. Affûtage</h3>
+                        <p>Suivi de la maintenance des outils</p>
+                    </div>
                 </div>
             </div>
-        </header>
+        </div>
 
-        <main class="flex-1 p-4 space-y-4 overflow-y-auto">
+        <div class="page" id="page-pointage">
+            <div class="page-title"><i class="fa-solid fa-clock"></i> Module Pointage</div>
             
-            <div class="bg-slate-950 rounded-2xl overflow-hidden shadow-inner relative border border-slate-800">
-                <div id="reader" class="w-full bg-slate-900 aspect-video"></div>
-                <div class="p-3 bg-slate-900 border-t border-slate-800 text-center flex justify-between items-center gap-2">
-                    <button onclick="startScanner()" class="ios-btn flex-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2.5 px-3 rounded-xl text-xs flex justify-center items-center gap-2 shadow-xs">
-                        <i class="fa-solid fa-camera"></i> Ouvrir Caméra iPhone
-                    </button>
-                    <button onclick="stopScanner()" class="ios-btn bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 px-4 rounded-xl text-xs">
-                        Fermer
-                    </button>
-                </div>
+            <select class="select-operator">
+                <option value="" disabled selected>Sélectionner le salarié...</option>
+                <option>Vincent</option>
+                <option>Adrien</option>
+                <option>Constantin</option>
+                <option>David</option>
+                <option>Boris</option>
+                <option>Steeve</option>
+                <option>Samy</option>
+                <option>Brandon</option>
+                <option>Stéphane</option>
+                <option>Sav</option>
+                <option>Joseph</option>
+            </select>
+
+            <div class="pointage-grid">
+                <button class="btn-p btn-p-in" onclick="simulerAction('Pointage ENTRÉE enregistré')">
+                    <i class="fa-solid fa-right-to-bracket"></i> ENTRÉE
+                </button>
+                <button class="btn-p btn-p-pause" onclick="simulerAction('Pointage PAUSE enregistré')">
+                    <i class="fa-solid fa-coffee"></i> PAUSE
+                </button>
+                <button class="btn-p btn-p-return" onclick="simulerAction('Pointage RETOUR PAUSE enregistré')">
+                    <i class="fa-solid fa-rotate-left"></i> RETOUR
+                </button>
+                <button class="btn-p btn-p-out" onclick="simulerAction('Pointage SORTIE enregistré')">
+                    <i class="fa-solid fa-right-from-bracket"></i> SORTIE
+                </button>
             </div>
 
-            <div id="scan-result" class="hidden animate-fadeIn">
-                <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md border border-slate-700">
-                    <div class="flex justify-between items-start border-b border-slate-700/60 pb-3 mb-3">
-                        <div>
-                            <span id="res-supplier" class="text-[10px] font-bold uppercase tracking-wider bg-slate-700 px-2 py-0.5 rounded text-slate-300">FOURNISSEUR</span>
-                            <h3 id="res-desc" class="text-base font-bold mt-1.5">Désignation</h3>
-                            <p class="text-xs text-slate-400 mt-1">Part No : <span id="res-partno" class="font-mono text-sky-400 font-bold">--</span></p>
-                        </div>
-                        <div class="text-right bg-slate-950/50 p-2 rounded-xl border border-slate-700 min-w-[75px]">
-                            <span class="text-[9px] text-slate-400 block uppercase font-medium">Stock local</span>
-                            <span id="res-qty" class="text-xl font-black text-white">--</span>
-                        </div>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between gap-3">
-                            <div class="flex items-center bg-slate-950 border border-slate-700 rounded-xl overflow-hidden h-11 shadow-inner">
-                                <button onclick="adjustQty(-1)" class="px-3 text-slate-400 hover:text-white font-bold text-lg h-full">-</button>
-                                <input id="input-qty" type="number" value="1" min="1" class="w-10 text-center font-bold text-white bg-transparent border-none focus:outline-none">
-                                <button onclick="adjustQty(1)" class="px-3 text-slate-400 hover:text-white font-bold text-lg h-full">+</button>
-                            </div>
-
-                            <div class="flex-1 flex gap-2">
-                                <button onclick="sendMovement('SORTIE')" class="ios-btn flex-1 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs flex flex-col justify-center items-center h-11 shadow-sm">
-                                    <i class="fa-solid fa-minus mb-0.5"></i> RETIRER
-                                </button>
-                                <button onclick="sendMovement('ENTRÉE')" class="ios-btn flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex flex-col justify-center items-center h-11 shadow-sm">
-                                    <i class="fa-solid fa-plus mb-0.5"></i> AJOUTER
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="mock-info-box" id="info-pointage">
+                Sélectionnez un nom et appuyez sur une touche pour tester le visuel.
             </div>
 
-            <div id="scan-placeholder" class="border-2 border-dashed border-slate-200 rounded-2xl py-10 text-center text-slate-400">
-                <i class="fa-solid fa-qrcode text-3xl mb-1.5 text-slate-300"></i>
-                <p class="text-xs font-medium">Scannez un QR code (contenant le Part No)</p>
+            <div class="btn-back" onclick="naviguer('page-accueil')"><i class="fa-solid fa-arrow-left"></i> Retour Menu</div>
+        </div>
+
+        <div class="page" id="page-magasin">
+            <div class="page-title"><i class="fa-solid fa-box-open"></i> Module Magasin</div>
+            <div class="mock-info-box">
+                <i class="fa-solid fa-qrcode" style="font-size: 40px; color: #0ea5e9; margin-bottom: 10px;"></i><br>
+                [ Zone de simulation du Scan QR Code ]<br><br>
+                L'appareil photo s'ouvrira ici pour scanner les grilles et couteaux industriels.
             </div>
+            <div class="btn-back" onclick="naviguer('page-accueil')"><i class="fa-solid fa-arrow-left"></i> Retour Menu</div>
+        </div>
 
-            <div class="space-y-2">
-                <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-1">Historique des mouvements</h3>
-                <div id="logs-list" class="space-y-1.5 max-h-44 overflow-y-auto pr-1 text-xs">
-                    <p id="no-logs" class="text-slate-400 italic text-center py-2 text-[11px]">Aucune action enregistrée.</p>
-                </div>
+        <div class="page" id="page-production">
+            <div class="page-title"><i class="fa-solid fa-list-check"></i> Module Production</div>
+            <div class="mock-info-box">
+                <i class="fa-solid fa-industry" style="font-size: 40px; color: #0ea5e9; margin-bottom: 10px;"></i><br>
+                [ Simulation du Planning Global ]<br><br>
+                Les ordres de fabrication et l'avancement des machines apparaîtront ici.
             </div>
+            <div class="btn-back" onclick="naviguer('page-accueil')"><i class="fa-solid fa-arrow-left"></i> Retour Menu</div>
+        </div>
 
-        </main>
+        <div class="page" id="page-affutage">
+            <div class="page-title"><i class="fa-solid fa-gear"></i> Module Affûtage</div>
+            <div class="mock-info-box">
+                <i class="fa-solid fa-screws-turn" style="font-size: 40px; color: #0ea5e9; margin-bottom: 10px;"></i><br>
+                [ Simulation Suivi Affûtage ]<br><br>
+                Suivi des étapes : Sablage ➡️ Affûtage ➡️ Lavage ➡️ Contrôle Qualité.
+            </div>
+            <div class="btn-back" onclick="naviguer('page-accueil')"><i class="fa-solid fa-arrow-left"></i> Retour Menu</div>
+        </div>
 
-        <nav class="absolute bottom-0 inset-x-0 bg-white border-t border-slate-200 h-16 flex items-center justify-around px-6 z-50">
-            <button class="flex flex-col items-center text-sky-600">
-                <i class="fa-solid fa-qrcode text-lg"></i>
-                <span class="text-[10px] font-semibold mt-0.5">Scanner</span>
-            </button>
-            <button onclick="alert('Lien direct vers votre fichier Google Sheets')" class="flex flex-col items-center text-slate-400 hover:text-slate-600">
-                <i class="fa-solid fa-table text-lg"></i>
-                <span class="text-[10px] font-medium mt-0.5">Fichier</span>
-            </button>
-        </nav>
     </div>
 
     <script>
-        // CONFIGURATION : Collez ici l'URL fournie par Google Sheets lors du déploiement
-        const WEB_APP_URL = "VOTRE_URL_GOOGLE_APPS_SCRIPT_ICI";
-
-        let html5QrcodeScanner = null;
-        let scannedPartNo = null;
-
-        function startScanner() {
-            html5QrcodeScanner = new Html5Qrcode("reader");
-            const config = { fps: 15, qrbox: { width: 220, height: 220 } };
-            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure)
-            .catch(err => alert("L'accès caméra nécessite un serveur sécurisé (HTTPS)."));
-        }
-
-        function stopScanner() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => document.getElementById('reader').innerHTML = '');
-            }
-        }
-
-        function onScanSuccess(decodedText) {
-            // Le QR code lu doit contenir exactement le numéro de pièce (ex: 0899403408)
-            scannedPartNo = decodedText.trim();
+        function naviguer(pageId) {
+            // Cache toutes les pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.remove('active'));
             
-            document.getElementById('scan-placeholder').classList.add('hidden');
-            document.getElementById('scan-result').classList.remove('hidden');
-            
-            // Pré-remplissage des informations connues temporairement pendant le chargement
-            document.getElementById('res-partno').innerText = scannedPartNo;
-            document.getElementById('res-supplier').innerText = "Vérification...";
-            document.getElementById('res-desc').innerText = "Lecture de la ligne Sheets...";
-            document.getElementById('res-qty').innerText = "--";
-            document.getElementById('input-qty').value = 1;
-            
-            // Optionnel : On peut faire un appel "GET" initial pour récupérer les détails de la ligne si besoin,
-            // ou laisser l'opérateur appliquer le mouvement basé sur son étiquette.
-            // Pour aller à l'essentiel, on affiche le code scanné prêt à l'action.
+            // Affiche la page demandée
+            document.getElementById(pageId).classList.add('active');
         }
 
-        function onScanFailure(error) {}
-
-        function adjustQty(amount) {
-            const input = document.getElementById('input-qty');
-            let val = parseInt(input.value) + amount;
-            if (val < 1) val = 1;
-            input.value = val;
-        }
-
-        function sendMovement(type) {
-            if (!scannedPartNo) return;
-            if (WEB_APP_URL === "https://script.google.com/macros/s/AKfycbynMnLFQI-eY_J9KfttmnwwNIzuZ6GtQng0ZiUzREE_lq1gYl_jFCO_cwSdd2bXBSkH/exec") {
-                alert("Erreur : Vous devez d'abord coller votre URL Google Apps Script dans le code JavaScript (ligne 121).");
+        function simulerAction(message) {
+            const select = document.querySelector('.select-operator');
+            const nom = select.value;
+            
+            if(!nom) {
+                alert("Veuillez d'abord sélectionner un salarié pour le test.");
                 return;
             }
-
-            var changeQty = parseInt(document.getElementById('input-qty').value);
-            var finalChange = (type === 'ENTRÉE') ? changeQty : -changeQty;
-
-            const statusEl = document.getElementById('sync-status');
-            statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> Envoi...`;
-            statusEl.className = "flex items-center gap-1.5 bg-amber-950 border border-amber-500/30 px-2.5 py-1 rounded-full text-[11px] text-amber-400 font-medium";
-
-            // Envoi de la requête en tâche de fond à Google Sheets
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                mode: "no-cors", // Requis pour éviter les blocages de sécurité navigateurs avec Google Apps Script
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ partNo: scannedPartNo, quantity: finalChange })
-            })
-            .then(() => {
-                // Remise à l'état connecté
-                statusEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Sheets Synchro`;
-                statusEl.className = "flex items-center gap-1.5 bg-emerald-950/80 border border-emerald-500/30 px-2.5 py-1 rounded-full text-[11px] text-emerald-400 font-medium";
-                
-                // Ajout à l'historique de l'écran mobile
-                addLog(type, scannedPartNo, changeQty);
-                
-                // Masquer le panneau d'action pour le prochain scan
-                document.getElementById('scan-result').classList.add('hidden');
-                document.getElementById('scan-placeholder').classList.remove('hidden');
-            })
-            .catch(err => {
-                alert("Erreur de transmission : " + err);
-            });
-        }
-
-        function addLog(type, partNo, qty) {
-            document.getElementById('no-logs').classList.add('hidden');
-            const container = document.getElementById('logs-list');
-            const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
             
-            const row = document.createElement('div');
-            row.className = `p-2 bg-white border rounded-xl flex justify-between items-center shadow-xs ${type === 'ENTRÉE' ? 'border-emerald-200 bg-emerald-50/50' : 'border-rose-200 bg-rose-50/50'}`;
-            row.innerHTML = `
-                <div>
-                    <span class="font-bold">${type === 'ENTRÉE' ? '▲ Entrée' : '▼ Sortie'}</span> — 
-                    <span class="font-mono text-slate-700">[${partNo}]</span>
-                    <p class="text-[9px] text-slate-400 mt-0.5">${time} — Envoyé au tableau Google Sheets</p>
-                </div>
-                <div class="font-bold text-sm ${type === 'ENTRÉE' ? 'text-emerald-600' : 'text-rose-600'}">${type === 'ENTRÉE' ? '+' : '-'}${qty}</div>
-            `;
-            container.insertBefore(row, container.firstChild);
+            const maintenant = new Date();
+            const heure = maintenant.toLocaleTimeString('fr-FR');
+            
+            document.getElementById('info-pointage').innerHTML = `🟢 <strong>SIMULATION :</strong><br>${message} pour <strong>${nom}</strong> à ${heure}.<br><span style="color:#deff9a; font-size:11px;">(Dans la version finale, cette ligne sera écrite dans le Sheets de Pointage)</span>`;
         }
     </script>
 </body>
